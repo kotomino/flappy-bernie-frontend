@@ -1,0 +1,28 @@
+#game-container {
+  width: 1080px;
+  height: 608px;
+  background-image: url("../images/background.png");
+  position: absolute;
+}
+
+#bernie {
+  background-image: url("../images/bernie.png");
+  width: 60px;
+  height: 80px;
+  position: absolute;
+}
+
+.pipe {
+  background-image: url("../images/pipe.png");
+  width: 60px;
+  height: 200px;
+  position: absolute;
+}
+
+.topPipe {
+  background-image: url("../images/pipe.png");
+  transform: rotate(180deg);
+  width: 60px;
+  height: 200px;
+  position: absolute;
+}
