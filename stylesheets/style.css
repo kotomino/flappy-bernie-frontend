@@ -1,8 +1,28 @@
+body {
+  display: flex;
+}
+
 #game-container {
-  width: 1080px;
-  height: 608px;
+  width: 500px;
+  height: 730px;
+  position: absolute;
+  left: 80px;
+}
+
+#sky {
+  width: 500px;
+  height: 580px;
   background-image: url("../images/background.png");
   position: absolute;
+}
+
+#ground {
+  width: 500px;
+  height: 150px;
+  background-image: url("../images/ground.png");
+  top: 580px;
+  position: absolute;
+  z-index: +1;
 }
 
 #bernie {
@@ -15,7 +35,7 @@
 .pipe {
   background-image: url("../images/pipe.png");
   width: 60px;
-  height: 200px;
+  height: 300px;
   position: absolute;
 }
 
@@ -26,3 +46,29 @@
   height: 200px;
   position: absolute;
 }
+
+#border-left {
+  width: 100px;
+  height: 790px;
+  position: absolute;
+  background-color: white;
+  z-index: +2;
+}
+
+#border-right {
+  width: 80px;
+  height: 790px;
+  position: absolute;
+  background-color: white;
+  z-index: +2;
+  left: 580px;
+}
+
+#border-top {
+  width: 660px;
+  height: 50px;
+  position: absolute;
+  background-color: white;
+  z-index: +2;
+  top: -50px;
+} 
