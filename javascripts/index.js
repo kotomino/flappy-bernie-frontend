@@ -1,11 +1,12 @@
 let users = [];
-let scores = [];
+let games = [];
 const baseUrl = "http://localhost:3000"
 
 let bernieLeft = 200; // bernie start horizontal position
 let bernieBottom = 300; // bernie start height
 let gravity = 2 
 let gap = 475; // space between pipes
+let pipeCount = -2;
 let isGameOver = false; 
 
 function mainDiv() {
@@ -53,7 +54,7 @@ async function getGames() {
   // populate side div with the scores
   const resp = await fetch(baseUrl +'/games')
   const data = await resp.json();
-  scores = data;
+  games = data;
   renderScores(data);
 }
 
@@ -94,7 +95,7 @@ function scoresTemplate() {
 
 function startButtonDisabled() {
   return `
-  <button type="button" disbaled>Start Game</button>
+  <button type="button" disabled>Start Game</button>
   `;
 }
 
@@ -117,7 +118,7 @@ function renderScores() {
   resetSideBar();
   sideDiv().innerHTML = scoresTemplate();
 
-  scores.forEach(function(score) {
+  games.forEach(function(score) {
     renderScore(score);
   })
 }
@@ -127,7 +128,12 @@ function renderScore(game) {
   let p = document.createElement('p');
   let topScores = document.getElementById('top-scores');
 
-  p.innerText = `${game.user.name}: ${game.score}`;
+  if(game.score) {
+    p.innerText = `${game.user.name}: ${game.score}`;
+  } else if (game.score <= 0) {
+    p.innerText = `${game.user.name}: 0`;
+  }
+  
 
   div.appendChild(p);
   topScores.appendChild(div);
@@ -137,13 +143,20 @@ async function submitName(e) {
   e.preventDefault();
 
   let strongParams = {
-    user: {
-      name: nameInput().value
+    game: {
+      score: undefined,
+      user_attributes: nameInput().value
     }
   }
 
+  // let strongParams = {
+  //   user: {
+  //     name: nameInput().value
+  //   }
+  // }
+
   // send data to the backend via a post request
-  const resp = await fetch(baseUrl + '/users', {
+  const resp = await fetch(baseUrl + '/games', {
     body: JSON.stringify(strongParams),
     headers: {
       "Accept": "application/json",
@@ -153,27 +166,19 @@ async function submitName(e) {
   })
   const data = await resp.json();
 
-  users.push(data);
+  games.push(data);
   startButton().innerHTML = startButtonEnabled();
   startButton().addEventListener('click', renderGame);
   getGames();
 }
 
 function renderGame() {
- 
-  // getGameElements();
-  generatePipe();
-  bernie().style.bottom = bernieBottom + 'px'
-  bernie().style.left = bernieLeft + 'px'
-  let gameTimerId = setInterval(bernieDrops, 20);  //calls bernieDrops every 20 miliseconds
-  // let generatePipeTimerId = setInterval(generatePipe, 2000); // generates pipe every 2 secs
-
-  document.addEventListener('keyup', jump);
+  startButton().innerHTML = startButtonDisabled();
   
-  if(isGameOver) {
-    clearInterval(gameTimerId); // stop dropping bernie
-    clearInterval(generatePipeTimerId); // stop generating pipes
-  }
+  generatePipe();
+  bernieDrops();
+  
+  document.addEventListener('keyup', jump);
 }
 
 function bernieDrops() {
@@ -183,20 +188,23 @@ function bernieDrops() {
 
   if (bernieBottom === 0) {
     gameOver();
+    clearInterval(gameTimerId); 
   }
+
+  if (!isGameOver) setTimeout(bernieDrops, 20) //calls bernieDrops every 20 miliseconds until game over
 }
 
 function jump(e) {
-  
   if (bernieBottom < 430 && e.keyCode === 32) {
-    bernieBottom += 120
+    bernieBottom += 90
   }
   bernie().style.bottom = bernieBottom + 'px'
 }
 
 function generatePipe() {
+    pipeCount += 1
     let pipeLeft = 500;
-    let pipeBottom = Math.random() * 100;
+    let pipeBottom = Math.random() * 150;
     const pipe = document.createElement('div');
     const topPipe = document.createElement('div');
     if(!isGameOver) {
@@ -217,7 +225,7 @@ function generatePipe() {
       pipe.style.left = pipeLeft + 'px';
       topPipe.style.left = pipeLeft + 'px';
 
-      if (pipeLeft === 0) {
+      if (pipeLeft === -60) {
         clearInterval(movePipeTimerId);
         gameDisplay().removeChild(pipe);
         gameDisplay().removeChild(topPipe);
@@ -226,22 +234,54 @@ function generatePipe() {
         gameOver();
       }
       if(isGameOver) {
-        clearInterval(movePipeTimerId); // stop pipes from moving
+        clearInterval(movePipeTimerId); // stops pipes when game over
       }
     }
-    let movePipeTimerId = setInterval(movePipe, 20); // calls movePipe every 20 miliseconds
-    if (!isGameOver) setTimeout(generatePipe, 3000)
+    let movePipeTimerId = setInterval(movePipe, 17); // calls movePipe every 20 miliseconds
+    if (!isGameOver) setTimeout(generatePipe, 2500) //generates pipe every 2 secs until game over
   }
 
   function gameOver() {
     isGameOver = true;
     document.removeEventListener('keyup', jump); // stop ability to jump
     console.log("Game over");
+    saveGameScore();
+  }
+
+  function saveGameScore() {
+    let strongParams = {
+      game: {
+        score: pipeCount
+      }
+    }
+
+    const id = games[games.length - 1].id;
+  
+    fetch(baseUrl + '/games/' + id, {
+      method: "PATCH",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(strongParams)
+    })
+    .then(function(resp) {
+      return resp.json();
+    })
+    .then(function(game) {
+      let g = games.find(function(g) {
+        return g.id == game.id
+      })
+      let idx = games.indexOf(g);
+
+      games[idx] = game;
+
+      renderScores();
+    })    
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     renderStartPage();
-    // getGames();
   })   
 
 
