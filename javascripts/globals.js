@@ -1,9 +1,6 @@
 /**  Global Variables **/
 
-const baseUrl = "http://localhost:3000"
-
 let users = [];
-let games = [];
 
 let bernieLeft = 200; // bernie start horizontal position
 let bernieBottom = 300; // bernie start height
