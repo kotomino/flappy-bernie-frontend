@@ -1,8 +1,11 @@
 # Flappy Bernie JavaScript App
 
-Vacay Away is a React JS web app that allows users to plan each of their vacation days with activities that display their hours of operation, addresses, and estimated costs. The app allows for flexible, dynamic, and visual engagement and automatically calculates the remaining budget from the original amount the user indicates. 
+Flappy Bernie is a JavaScript web game that is based off of the popular game Flappy Bird.
 
 You can find the corresponding backend project at URL(https://github.com/kotomino/flappy-bernie-backend)
+
+### Game Rules
+Press the spacebar to flap Bernie up and navigate him through the pipes. The pair of pipes have equally sized gaps placed at random heights. Bernie will descend automatically and the pipes' horizontal speed will remain constant. Each successful pass through a pair of pipes gains you one point. Colliding with a pipe or the ground ends the game. Happy flapping!
 
 ### Preview
 
